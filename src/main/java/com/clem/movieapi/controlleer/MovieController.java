@@ -49,7 +49,6 @@ public class MovieController {
         return ResponseEntity.ok(movieService.deleteMovie(id));
     }
 
-
     private MovieDto convertToMovieDto(String movieDtoObj) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
