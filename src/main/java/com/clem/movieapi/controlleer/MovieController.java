@@ -1,8 +1,10 @@
 package com.clem.movieapi.controlleer;
 
 import com.clem.movieapi.dto.MovieDto;
+import com.clem.movieapi.dto.MoviePageResponse;
 import com.clem.movieapi.exceptions.EmptyFileException;
 import com.clem.movieapi.service.MovieService;
+import com.clem.movieapi.utils.AppConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -38,6 +40,25 @@ public class MovieController {
     public ResponseEntity<List<MovieDto>> getAllMovies() {
         return ResponseEntity.ok(movieService.getAllMovies());
     }
+
+    @GetMapping("/paged")
+    public ResponseEntity<MoviePageResponse> getAllMoviesPages(
+            @RequestParam(defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer page,
+            @RequestParam(defaultValue = AppConstants.PAGE_SIZE, required = false) Integer size
+    ) {
+        return ResponseEntity.ok(movieService.getMoviesWithPagination(page, size));
+    }
+
+    @GetMapping("/sorted")
+    public ResponseEntity<MoviePageResponse> getAllMoviesSorted(
+            @RequestParam(defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer page,
+            @RequestParam(defaultValue = AppConstants.PAGE_SIZE, required = false) Integer size,
+            @RequestParam(defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+            @RequestParam(defaultValue = AppConstants.SORT_ORDER, required = false) String sortOrder
+    ) {
+        return ResponseEntity.ok(movieService.getMoviesWithPaginationAndSorted(page, size, sortBy, sortOrder));
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<MovieDto> updateMovie(@PathVariable Integer id, @RequestPart MultipartFile file, @RequestPart String movieDto) throws IOException {
