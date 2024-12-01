@@ -1,6 +1,7 @@
 package com.clem.movieapi.controlleer;
 
 import com.clem.movieapi.dto.MovieDto;
+import com.clem.movieapi.exceptions.EmptyFileException;
 import com.clem.movieapi.service.MovieService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,9 +23,10 @@ public class MovieController {
     }
 
     @PostMapping
-    public ResponseEntity<MovieDto> createMovie(@RequestPart MultipartFile file, @RequestPart String movieDto) throws IOException {
-        var dto = convertToMovieDto(movieDto);
-        return new ResponseEntity<>(movieService.addMovie(dto, file), HttpStatus.CREATED);
+    public ResponseEntity<MovieDto> createMovie(@RequestPart MultipartFile file, @RequestPart String movieDto) throws  EmptyFileException, IOException {
+       if (file.isEmpty())  throw new EmptyFileException("File is empty");
+       var dto = convertToMovieDto(movieDto);
+       return new ResponseEntity<>(movieService.addMovie(dto, file), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")

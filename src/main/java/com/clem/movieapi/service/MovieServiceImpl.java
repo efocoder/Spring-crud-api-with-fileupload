@@ -2,6 +2,8 @@ package com.clem.movieapi.service;
 
 import com.clem.movieapi.dto.MovieDto;
 import com.clem.movieapi.entities.Movie;
+import com.clem.movieapi.exceptions.FileExistsException;
+import com.clem.movieapi.exceptions.MovieNotFoundException;
 import com.clem.movieapi.reposittories.MovieRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class MovieServiceImpl implements MovieService{
     @Override
     public MovieDto addMovie(MovieDto movieDto, MultipartFile file) throws IOException {
        if(Files.exists(Paths.get(path + File.separator + file.getOriginalFilename()))){
-           throw new RuntimeException("File already exists, please enter another file name");
+           throw new FileExistsException("File already exists, please enter another file name");
        }
         var uploadedFile =  fileService.uploadFile(path, file);
        movieDto.setPoster(uploadedFile);
@@ -61,7 +63,7 @@ public class MovieServiceImpl implements MovieService{
 
     @Override
     public MovieDto getMovie(Integer id) {
-        Movie movie = movieRepository.findById(id).orElseThrow(()->new RuntimeException("Movie not found"));
+        Movie movie = movieRepository.findById(id).orElseThrow(()->new MovieNotFoundException("Movie not found"));
         String posterUrl = baseUrl + "/file/" + movie.getPoster();
         return new MovieDto(
                 movie.getId(),
@@ -98,7 +100,7 @@ public class MovieServiceImpl implements MovieService{
 
     @Override
     public MovieDto updateMovie(Integer id, MovieDto movieDto, MultipartFile file) throws IOException {
-        Movie mv = movieRepository.findById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
+        Movie mv = movieRepository.findById(id).orElseThrow(() -> new MovieNotFoundException("Movie not found"));
         String filename = mv.getPoster();
         if(file!= null){
             Files.deleteIfExists(Paths.get(path + File.separator + filename));
@@ -131,7 +133,7 @@ public class MovieServiceImpl implements MovieService{
 
     @Override
     public String deleteMovie(Integer id) throws IOException {
-        Movie mv = movieRepository.findById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
+        Movie mv = movieRepository.findById(id).orElseThrow(() -> new MovieNotFoundException("Movie not found"));
         Files.deleteIfExists(Paths.get(path + File.separator + mv.getPoster()));
        movieRepository.delete(mv);
         return "Movie deleted successfully";
